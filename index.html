@@ -1,0 +1,986 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Class One Video Approval Review</title>
+  <style>
+    :root {
+      --ink: #152033;
+      --muted: #637083;
+      --line: #dfe6ee;
+      --paper: #ffffff;
+      --wash: #f5f7fa;
+      --brand: #c2185b;
+      --brand-ink: #8d123f;
+      --good: #16834a;
+      --good-bg: #edf8f1;
+      --warn: #b86112;
+      --warn-bg: #fff5e7;
+      --bad: #ba253e;
+      --bad-bg: #fff0f3;
+      --focus: 0 0 0 3px rgba(194, 24, 91, .18);
+      --shadow: 0 20px 60px rgba(21, 32, 51, .1);
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #fbfcfe 0%, #f3f6f9 44%, #eef3f7 100%);
+      min-height: 100vh;
+    }
+
+    button, input, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 24px auto 48px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--brand);
+      color: white;
+      font-weight: 800;
+      letter-spacing: 0;
+      flex: 0 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.45rem, 2.8vw, 2.1rem);
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .95rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: var(--radius);
+      background: #e8edf3;
+      color: var(--ink);
+      font-weight: 700;
+      transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(21, 32, 51, .12); }
+    .btn:focus-visible, input:focus-visible, textarea:focus-visible { outline: none; box-shadow: var(--focus); }
+
+    .btn.primary { background: var(--brand); color: white; }
+    .btn.success { background: var(--good); color: white; }
+    .btn.ghost { background: transparent; border: 1px solid var(--line); }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 0 rgba(21, 32, 51, .03);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 1rem;
+      line-height: 1.2;
+    }
+
+    .panel-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      padding: 18px 20px 20px;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: .84rem;
+      font-weight: 700;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      min-height: 42px;
+      padding: 10px 12px;
+      color: var(--ink);
+      background: white;
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .review-tools {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+
+    .toggle {
+      min-height: 36px;
+      padding: 0 11px;
+      border-radius: var(--radius);
+      color: var(--ink);
+      background: #edf2f6;
+      font-weight: 700;
+      font-size: .86rem;
+    }
+
+    .toggle[aria-pressed="true"] {
+      background: #152033;
+      color: white;
+    }
+
+    details {
+      border-bottom: 1px solid var(--line);
+    }
+
+    details:last-child { border-bottom: 0; }
+
+    summary {
+      list-style: none;
+      cursor: pointer;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      user-select: none;
+    }
+
+    summary::-webkit-details-marker { display: none; }
+
+    .section-name {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .section-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      background: #cad4df;
+      flex: 0 0 auto;
+    }
+
+    details.complete .section-dot { background: var(--good); }
+
+    .section-count {
+      color: var(--muted);
+      font-weight: 800;
+      font-size: .84rem;
+      white-space: nowrap;
+    }
+
+    .checklist {
+      padding: 0 20px 18px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: white;
+      transition: background .16s ease, border-color .16s ease, transform .16s ease;
+    }
+
+    .item:hover { transform: translateY(-1px); }
+    .item.done { background: var(--good-bg); border-color: #b7dfc4; }
+    .item.hidden-by-filter { display: none; }
+
+    .item input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .box {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      border: 2px solid #bdc9d6;
+      display: grid;
+      place-items: center;
+      color: transparent;
+      font-weight: 900;
+      transition: background .16s ease, border-color .16s ease, color .16s ease;
+    }
+
+    .item input:checked + .box {
+      background: var(--good);
+      border-color: var(--good);
+      color: white;
+    }
+
+    .item-copy {
+      min-width: 0;
+      line-height: 1.35;
+    }
+
+    .cn {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 18px 20px;
+    }
+
+    .decision {
+      min-height: 98px;
+      padding: 14px;
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: white;
+      text-align: left;
+      display: grid;
+      gap: 5px;
+      transition: transform .16s ease, border-color .16s ease, background .16s ease;
+    }
+
+    .decision:hover { transform: translateY(-1px); }
+    .decision strong { font-size: 1rem; }
+    .decision span { color: var(--muted); font-size: .86rem; line-height: 1.35; }
+    .decision.selected { border-color: currentColor; box-shadow: inset 0 0 0 1px currentColor; }
+    .decision[data-value="approved"].selected { color: var(--good); background: var(--good-bg); }
+    .decision[data-value="revision"].selected { color: var(--warn); background: var(--warn-bg); }
+    .decision[data-value="rejected"].selected { color: var(--bad); background: var(--bad-bg); }
+
+    .notes-wrap {
+      padding: 0 20px 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .side {
+      position: sticky;
+      top: 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .score {
+      padding: 20px;
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .percent {
+      font-size: 2.35rem;
+      font-weight: 850;
+      line-height: 1;
+      color: var(--brand);
+    }
+
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      background: #e5ebf2;
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--brand), var(--good));
+      transition: width .24s ease;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px;
+      background: #fbfcfe;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 1.2rem;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 700;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: #edf2f6;
+      color: var(--ink);
+      font-size: .82rem;
+      font-weight: 850;
+    }
+
+    .status-pill.approved { background: var(--good-bg); color: var(--good); }
+    .status-pill.revision { background: var(--warn-bg); color: var(--warn); }
+    .status-pill.rejected { background: var(--bad-bg); color: var(--bad); }
+
+    .summary-panel {
+      padding: 18px 20px 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .message {
+      min-height: 230px;
+      font-size: .92rem;
+      background: #fbfcfe;
+    }
+
+    .helper-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      min-width: 220px;
+      max-width: min(360px, calc(100vw - 36px));
+      padding: 12px 14px;
+      border-radius: var(--radius);
+      background: #152033;
+      color: white;
+      box-shadow: var(--shadow);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity .2s ease, transform .2s ease;
+      font-weight: 700;
+      z-index: 20;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 940px) {
+      .layout { grid-template-columns: 1fr; }
+      .side { position: static; }
+    }
+
+    @media (max-width: 680px) {
+      .shell { width: min(100% - 20px, 1180px); margin-top: 14px; }
+      .topbar { align-items: flex-start; flex-direction: column; }
+      .actions { width: 100%; justify-content: stretch; }
+      .actions .btn { flex: 1 1 140px; }
+      .form-grid, .decision-grid { grid-template-columns: 1fr; }
+      .panel-head, summary, .review-tools, .form-grid, .decision-grid, .notes-wrap, .checklist, .summary-panel, .score { padding-left: 14px; padding-right: 14px; }
+      .percent { font-size: 2rem; }
+    }
+
+    @media print {
+      body { background: white; }
+      .shell { width: 100%; margin: 0; }
+      .actions, .review-tools, .helper-row, .toast { display: none !important; }
+      .layout { grid-template-columns: 1fr; }
+      .side { position: static; }
+      .panel { box-shadow: none; break-inside: avoid; }
+      details { break-inside: avoid; }
+      details:not([open]) .checklist { display: grid; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark">C1</div>
+        <div>
+          <h1>Video Approval Review</h1>
+          <p class="subtitle">Content creator video checklist / 内容创作者视频审核清单</p>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn ghost" id="printBtn" type="button">Print</button>
+        <button class="btn" id="resetBtn" type="button">Reset</button>
+        <button class="btn primary" id="copyTopBtn" type="button">Copy Summary</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <section class="maincol">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">Review Details</h2>
+              <p class="panel-subtitle">审核资料</p>
+            </div>
+            <span class="status-pill" id="statusPill">Draft</span>
+          </div>
+          <div class="form-grid">
+            <label>Creator Name / 创作者姓名
+              <input id="creatorName" autocomplete="name" placeholder="Teacher Sarah">
+            </label>
+            <label>Creator Email / 创作者邮箱
+              <input id="creatorEmail" type="email" autocomplete="email" placeholder="teacher@class-one.com">
+            </label>
+            <label>Video Title / 视频标题
+              <input id="videoTitle" placeholder="English Grammar Hacks">
+            </label>
+            <label>Submission Date / 提交日期
+              <input id="submitDate" type="date">
+            </label>
+            <label>Reviewed By / 审核人
+              <input id="reviewer" placeholder="Trainer name">
+            </label>
+            <label>Review Date / 审核日期
+              <input id="reviewDate" type="date">
+            </label>
+          </div>
+        </section>
+
+        <section class="panel" style="margin-top:18px">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">Checklist</h2>
+              <p class="panel-subtitle">审核项目</p>
+            </div>
+            <span class="section-count" id="remainingText">31 remaining</span>
+          </div>
+          <div class="review-tools">
+            <button class="toggle" id="markAllBtn" type="button">Mark All Pass</button>
+            <button class="toggle" id="clearChecksBtn" type="button">Clear Checks</button>
+            <button class="toggle" id="filterBtn" type="button" aria-pressed="false">Show Remaining</button>
+          </div>
+          <div id="sections"></div>
+        </section>
+
+        <section class="panel" style="margin-top:18px">
+          <div class="panel-head">
+            <div>
+              <h2 class="panel-title">Final Decision</h2>
+              <p class="panel-subtitle">最终审核结果</p>
+            </div>
+          </div>
+          <div class="decision-grid" id="decisionGrid">
+            <button class="decision" data-value="approved" type="button">
+              <strong>Approved</strong>
+              <span>通过审核，可以发布</span>
+            </button>
+            <button class="decision" data-value="revision" type="button">
+              <strong>Revision Required</strong>
+              <span>需要修改后重新提交</span>
+            </button>
+            <button class="decision" data-value="rejected" type="button">
+              <strong>Rejected</strong>
+              <span>审核不通过</span>
+            </button>
+          </div>
+          <div class="notes-wrap">
+            <label>Trainer Notes / 审核备注
+              <textarea id="notes" placeholder="Add clear feedback for the creator..."></textarea>
+            </label>
+          </div>
+        </section>
+      </section>
+
+      <aside class="side">
+        <section class="panel score">
+          <div class="progress-row">
+            <div>
+              <div class="panel-title">Completion</div>
+              <div class="panel-subtitle">完成度</div>
+            </div>
+            <div class="percent" id="percent">0%</div>
+          </div>
+          <div class="bar"><span id="barFill"></span></div>
+          <div class="metrics">
+            <div class="metric"><b id="passedCount">0</b><span>Passed</span></div>
+            <div class="metric"><b id="totalCount">31</b><span>Total</span></div>
+          </div>
+        </section>
+
+        <section class="panel summary-panel">
+          <div>
+            <h2 class="panel-title">AI Summary</h2>
+            <p class="panel-subtitle">Trainer message / 发送给创作者</p>
+          </div>
+          <textarea id="summaryBox" class="message" readonly></textarea>
+          <div class="helper-row">
+            <button class="btn primary" id="copySummaryBtn" type="button">Copy</button>
+            <button class="btn" id="emailBtn" type="button">Email Creator</button>
+            <button class="btn ghost" id="refreshSummaryBtn" type="button">Regenerate</button>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const checklist = [
+      {
+        title: "Mandatory Content / 基本内容",
+        items: [
+          ["Original content created by the teacher", "教师原创内容"],
+          ["Education, teaching, learning, parenting, or tutoring related content", "与教育、教学、学习、家长教育或补习相关"],
+          ["Teacher's face is clearly visible", "教师本人清楚出镜"],
+          ["Teacher's voice is clearly heard", "教师声音清晰可听"],
+          ["Content provides value through tips, experience, insights, or student progress", "内容具有价值，例如教学技巧、经验分享、教学心得或学生进步案例"],
+          ["No competitor promotion", "没有推广竞争对手品牌或平台"]
+        ]
+      },
+      {
+        title: "Technical Quality / 技术质量",
+        items: [
+          ["Meets minimum video duration requirement", "符合最低视频时长要求"],
+          ["Video is clear and not blurry", "视频画面清晰，不模糊"],
+          ["Audio is clear and understandable", "音频清晰，容易理解"],
+          ["Sufficient lighting and professional appearance", "光线充足，整体形象专业"],
+          ["Suitable format for Reels, TikTok, or Shorts", "适合 Reels、TikTok 或 Shorts 发布格式"]
+        ]
+      },
+      {
+        title: "Compliance / 合规要求",
+        items: [
+          ["No copyright infringement issues", "没有版权侵权问题"],
+          ["No offensive, inappropriate, or sensitive content", "没有不当、冒犯或敏感内容"],
+          ["No political or religious discussions", "没有政治或宗教相关内容"],
+          ["No misleading income or success claims", "没有夸大收入或成功保证"],
+          ["Suitable for public posting on Class One platforms", "适合发布于 Class One 官方平台"]
+        ]
+      },
+      {
+        title: "Content Quality / 内容质量",
+        items: [
+          ["Topic is relevant and meaningful", "主题相关且有意义"],
+          ["Information is accurate and reliable", "内容准确可靠"],
+          ["Message is clear and easy to understand", "表达清晰，容易理解"],
+          ["Provides useful value to viewers", "对观众具有实用价值"]
+        ]
+      },
+      {
+        title: "Presentation / 表现质量",
+        items: [
+          ["Teacher speaks confidently and naturally", "表达自然且有自信"],
+          ["Good eye contact with the camera", "与镜头有良好互动"],
+          ["Professional appearance and attitude", "形象与态度专业"],
+          ["Explanation is engaging and easy to follow", "讲解生动且容易跟随"]
+        ]
+      },
+      {
+        title: "Engagement / 吸引力评估",
+        items: [
+          ["Strong opening that attracts attention", "开头能够吸引观众注意"],
+          ["Keeps viewers interested throughout the video", "能够维持观众观看兴趣"],
+          ["Includes a clear takeaway or key message", "有明确重点或学习收获"],
+          ["Encourages audience interaction or reflection", "能引发观众互动或思考"]
+        ]
+      },
+      {
+        title: "Brand Fit / 品牌形象",
+        items: [
+          ["Represents Class One professionally", "良好代表 Class One 品牌形象"],
+          ["Suitable for social media publication", "适合发布于社交媒体平台"],
+          ["Supports teacher recruitment or student enrollment objectives", "有助于教师招募或学生招生目标"]
+        ]
+      }
+    ];
+
+    const state = {
+      decision: "",
+      showRemaining: false
+    };
+
+    const fields = ["creatorName", "creatorEmail", "videoTitle", "submitDate", "reviewer", "reviewDate", "notes"];
+    const $ = (id) => document.getElementById(id);
+    const sectionsEl = $("sections");
+
+    function initDates() {
+      const today = new Date().toISOString().slice(0, 10);
+      $("submitDate").value = today;
+      $("reviewDate").value = today;
+    }
+
+    function renderChecklist() {
+      let index = 0;
+      sectionsEl.innerHTML = checklist.map((section, sectionIndex) => {
+        const items = section.items.map(([en, cn]) => {
+          const id = `check-${index++}`;
+          return `
+            <label class="item" data-section="${sectionIndex}" data-label="${escapeAttr(en)}">
+              <input class="check" id="${id}" type="checkbox">
+              <span class="box">✓</span>
+              <span class="item-copy"><strong>${en}</strong><span class="cn">${cn}</span></span>
+            </label>
+          `;
+        }).join("");
+        return `
+          <details open data-section-wrap="${sectionIndex}">
+            <summary>
+              <span class="section-name"><span class="section-dot"></span><strong>${section.title}</strong></span>
+              <span class="section-count" data-section-count="${sectionIndex}">0/${section.items.length}</span>
+            </summary>
+            <div class="checklist">${items}</div>
+          </details>
+        `;
+      }).join("");
+    }
+
+    function escapeAttr(value) {
+      return value.replace(/"/g, "&quot;");
+    }
+
+    function getChecks() {
+      return [...document.querySelectorAll(".check")];
+    }
+
+    function getReviewData() {
+      return Object.fromEntries(fields.map((field) => [field, $(field).value.trim()]));
+    }
+
+    function getMissedItems() {
+      return [...document.querySelectorAll(".item:not(.done)")].map((item) => item.dataset.label);
+    }
+
+    function updateProgress() {
+      const checks = getChecks();
+      const checked = checks.filter((box) => box.checked).length;
+      const total = checks.length;
+      const percent = total ? Math.round((checked / total) * 100) : 0;
+      $("percent").textContent = `${percent}%`;
+      $("barFill").style.width = `${percent}%`;
+      $("passedCount").textContent = checked;
+      $("totalCount").textContent = total;
+      $("remainingText").textContent = `${total - checked} remaining`;
+
+      document.querySelectorAll(".item").forEach((item) => {
+        const input = item.querySelector(".check");
+        item.classList.toggle("done", input.checked);
+        item.classList.toggle("hidden-by-filter", state.showRemaining && input.checked);
+      });
+
+      checklist.forEach((section, sectionIndex) => {
+        const boxes = [...document.querySelectorAll(`.item[data-section="${sectionIndex}"] .check`)];
+        const sectionDone = boxes.filter((box) => box.checked).length;
+        const wrap = document.querySelector(`[data-section-wrap="${sectionIndex}"]`);
+        const count = document.querySelector(`[data-section-count="${sectionIndex}"]`);
+        wrap.classList.toggle("complete", sectionDone === boxes.length);
+        count.textContent = `${sectionDone}/${boxes.length}`;
+      });
+
+      if (!state.decision && percent === 100) {
+        setDecision("approved", false);
+      }
+
+      updateStatus(percent);
+      updateSummary();
+      saveDraft();
+    }
+
+    function updateStatus(percent) {
+      const pill = $("statusPill");
+      pill.className = "status-pill";
+      if (state.decision) {
+        pill.textContent = state.decision === "approved" ? "Approved" : state.decision === "revision" ? "Revision" : "Rejected";
+        pill.classList.add(state.decision);
+      } else if (percent === 100) {
+        pill.textContent = "Ready";
+        pill.classList.add("approved");
+      } else {
+        pill.textContent = "In Review";
+      }
+    }
+
+    function setDecision(value, announce = true) {
+      state.decision = value;
+      document.querySelectorAll(".decision").forEach((button) => {
+        button.classList.toggle("selected", button.dataset.value === value);
+      });
+      updateProgress();
+      if (announce) toast(`Decision set to ${decisionLabel(value)}.`);
+    }
+
+    function decisionLabel(value) {
+      return value === "approved" ? "Approved" : value === "revision" ? "Revision Required" : value === "rejected" ? "Rejected" : "Pending";
+    }
+
+    function buildSummary() {
+      const data = getReviewData();
+      const checks = getChecks();
+      const checked = checks.filter((box) => box.checked).length;
+      const total = checks.length;
+      const percent = total ? Math.round((checked / total) * 100) : 0;
+      const missed = getMissedItems().slice(0, 6);
+      const creator = data.creatorName || "Teacher";
+      const title = data.videoTitle || "your video";
+      const reviewer = data.reviewer || "Class One Trainer";
+      const decision = decisionLabel(state.decision);
+      const notes = data.notes || defaultNotes(state.decision, percent);
+
+      let nextStep = "Please wait for the trainer's final confirmation.";
+      let nextStepCn = "请等待审核老师的最终确认。";
+      if (state.decision === "approved") {
+        nextStep = "Your video is approved for Class One posting.";
+        nextStepCn = "你的视频已通过审核，可安排发布。";
+      }
+      if (state.decision === "revision") {
+        nextStep = "Please revise the points below and resubmit the updated video.";
+        nextStepCn = "请根据以下重点修改后重新提交。";
+      }
+      if (state.decision === "rejected") {
+        nextStep = "This submission is not approved for posting. Please prepare a new version that follows the requirements.";
+        nextStepCn = "此视频暂不适合发布，请根据要求重新准备版本。";
+      }
+
+      const missedLine = missed.length
+        ? missed.map((item) => `- ${item}`).join("\n")
+        : "- All checklist items are marked as passed.";
+
+      return `Hi ${creator},
+
+Video: ${title}
+Review result: ${decision}
+Checklist score: ${checked}/${total} (${percent}%)
+Reviewed by: ${reviewer}
+
+${nextStep}
+${nextStepCn}
+
+Trainer feedback:
+${notes}
+
+Items to check:
+${missedLine}
+
+Thank you.
+Class One`;
+    }
+
+    function defaultNotes(decision, percent) {
+      if (decision === "approved") return "Strong submission. The content is clear, suitable for the platform, and aligned with Class One standards.";
+      if (decision === "revision") return "Good direction overall. Please improve the unchecked items before the next submission.";
+      if (decision === "rejected") return "The current version does not meet the approval requirements. Please use the checklist as a guide for the next draft.";
+      if (percent >= 80) return "Most requirements are complete. Please confirm the remaining items before sending the final result.";
+      return "Review is still in progress. Complete the checklist and choose a final decision.";
+    }
+
+    function updateSummary() {
+      $("summaryBox").value = buildSummary();
+      const data = getReviewData();
+      const emailBtn = $("emailBtn");
+      const subject = encodeURIComponent(`Class One Video Review: ${data.videoTitle || "Video Submission"}`);
+      const body = encodeURIComponent($("summaryBox").value);
+      emailBtn.disabled = !data.creatorEmail;
+      emailBtn.dataset.href = data.creatorEmail ? `mailto:${encodeURIComponent(data.creatorEmail)}?subject=${subject}&body=${body}` : "";
+    }
+
+    async function copySummary() {
+      await navigator.clipboard.writeText($("summaryBox").value);
+      toast("Summary copied.");
+    }
+
+    function saveDraft() {
+      const draft = {
+        fields: getReviewData(),
+        decision: state.decision,
+        checks: getChecks().map((box) => box.checked)
+      };
+      localStorage.setItem("classOneVideoReview", JSON.stringify(draft));
+    }
+
+    function loadDraft() {
+      const raw = localStorage.getItem("classOneVideoReview");
+      if (!raw) return;
+      try {
+        const draft = JSON.parse(raw);
+        Object.entries(draft.fields || {}).forEach(([key, value]) => {
+          if ($(key)) $(key).value = value;
+        });
+        getChecks().forEach((box, index) => {
+          box.checked = Boolean(draft.checks && draft.checks[index]);
+        });
+        if (draft.decision) setDecision(draft.decision, false);
+      } catch {
+        localStorage.removeItem("classOneVideoReview");
+      }
+    }
+
+    function toast(message) {
+      const box = $("toast");
+      box.textContent = message;
+      box.classList.add("show");
+      window.clearTimeout(toast.timer);
+      toast.timer = window.setTimeout(() => box.classList.remove("show"), 1800);
+    }
+
+    function bindEvents() {
+      document.addEventListener("change", (event) => {
+        if (event.target.matches(".check, input, textarea")) updateProgress();
+      });
+      document.addEventListener("input", (event) => {
+        if (event.target.matches("input, textarea")) updateProgress();
+      });
+
+      $("markAllBtn").addEventListener("click", () => {
+        getChecks().forEach((box) => { box.checked = true; });
+        updateProgress();
+        toast("All checklist items marked.");
+      });
+      $("clearChecksBtn").addEventListener("click", () => {
+        getChecks().forEach((box) => { box.checked = false; });
+        updateProgress();
+        toast("Checklist cleared.");
+      });
+      $("filterBtn").addEventListener("click", () => {
+        state.showRemaining = !state.showRemaining;
+        $("filterBtn").setAttribute("aria-pressed", String(state.showRemaining));
+        updateProgress();
+      });
+      $("decisionGrid").addEventListener("click", (event) => {
+        const button = event.target.closest(".decision");
+        if (button) setDecision(button.dataset.value);
+      });
+      $("copySummaryBtn").addEventListener("click", copySummary);
+      $("copyTopBtn").addEventListener("click", copySummary);
+      $("refreshSummaryBtn").addEventListener("click", () => {
+        updateSummary();
+        toast("Summary regenerated.");
+      });
+      $("emailBtn").addEventListener("click", () => {
+        const href = $("emailBtn").dataset.href;
+        if (!href) {
+          toast("Add creator email first.");
+          return;
+        }
+        window.location.href = href;
+      });
+      $("printBtn").addEventListener("click", () => window.print());
+      $("resetBtn").addEventListener("click", () => {
+        if (!confirm("Reset this review?")) return;
+        localStorage.removeItem("classOneVideoReview");
+        fields.forEach((field) => { $(field).value = ""; });
+        initDates();
+        getChecks().forEach((box) => { box.checked = false; });
+        state.decision = "";
+        document.querySelectorAll(".decision").forEach((button) => button.classList.remove("selected"));
+        updateProgress();
+        toast("Review reset.");
+      });
+    }
+
+    renderChecklist();
+    initDates();
+    bindEvents();
+    loadDraft();
+    updateProgress();
+  </script>
+</body>
+</html>
